@@ -1,2 +1,5 @@
 .idea/
 ftp_client.iml
+FileActions/FileActions.iml
+GUI/GUI.iml
+Others/Others.iml
