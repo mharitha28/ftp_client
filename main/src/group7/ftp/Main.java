@@ -77,6 +77,21 @@ public class Main {
         return dir.isDirectory();
     }
 
+    /**
+     * Call this method to get the list of the files on the current
+     * directory
+     *
+     * @return  Always returns true
+     */
+    public static boolean listFilesOnCurrentDirectory(){
+        File currDir = new File(".");
+        File[] filesList = currDir.listFiles();
+        for(int i = 0; i < filesList.length; i++ ){
+            System.out.println( filesList[i].getName() );
+        }
+        return true;
+    }
+
     public static void main( String[] args ){
         System.out.printf("Hello, world!");
         String sourcePath = new String();
@@ -99,6 +114,8 @@ public class Main {
         String[] files = new String[5];
         if( getMultipleFiles(sourcePath, destPath, files, ftpClient) )
             System.out.println("GetMultiple Files Works!");
+
+        listFilesOnCurrentDirectory();
 
         System.exit(1);
     }
