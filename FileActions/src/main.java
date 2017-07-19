@@ -5,28 +5,46 @@ import java.net.SocketException;
 import java.util.Scanner;
 
 class FileActions {
-    public static void main(String[] args){
-        Scanner scan = new Scanner(System.in);
-        FTPClient ftpClient = new FTPClient();
+
+    private static Scanner scan;
+
+    public static void main(String[] args) {
+        scan = new Scanner(System.in);
+        System.out.println("Enter user name: ");
+        String username = scan.nextLine();
+        System.out.println("Enter password: ");
+        String password = scan.nextLine();
+        FPTClient object = new FPTClient();
+        boolean result = object.Login(username, password);
+        if(result){
+            System.out.println("Connection exits succesfully.");
+        } else{
+            System.out.println("Connection fails.");
+        }
+    }
+    //System.exit(1);
+
+}
+class FPTClient{
+    private FTPClient ftpClient;
+    FPTClient(){
+        ftpClient = new FTPClient();
+    }
+    public boolean Login(String username, String password) {
         try {
             ftpClient.connect("127.0.0.1"); //LOCAL HOST
-            System.out.println("Enter user name: ");
-            String username = scan.nextLine();
-            System.out.println("Enter password: ");
-            String password = scan.nextLine();
             boolean login = ftpClient.login(username, password);
             if (login) {
                 System.out.println("Connection established...");
-                System.out.println("Status: "+ftpClient.getStatus());
-
+                System.out.println("Status: " + ftpClient.getStatus());
 
                 // logout the user, returned true if logout successfully
                 boolean logout = ftpClient.logout();
                 if (logout) {
-                    System.out.println("Connection close...");
+                    return true;
                 }
             } else {
-                System.out.println("Connection fail...");
+                return false;
             }
 
         } catch (SocketException e) {
@@ -40,6 +58,7 @@ class FileActions {
                 e.printStackTrace();
             }
         }
-    System.exit(1);
+        return false;
     }
 }
+
