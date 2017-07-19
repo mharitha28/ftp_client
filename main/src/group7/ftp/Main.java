@@ -85,6 +85,9 @@ public class Main {
      */
     public static boolean listFilesOnCurrentDirectory(){
         File currDir = new File(".");
+
+        if( isDirectoryOnLocal( currDir.toString() ) == false ) return false;
+
         File[] filesList = currDir.listFiles();
         for(int i = 0; i < filesList.length; i++ ){
             System.out.println( filesList[i].getName() );
