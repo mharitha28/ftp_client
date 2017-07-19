@@ -5,9 +5,7 @@ import java.net.SocketException;
 import java.util.Scanner;
 
 class FileActions {
-
     private static Scanner scan;
-
     public static void main(String[] args) {
         scan = new Scanner(System.in);
         System.out.println("Enter user name: ");
