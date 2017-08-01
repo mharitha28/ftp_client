@@ -60,12 +60,22 @@ public class getFile
 
   public boolean SingleFile( String sourcePath, String destPath, String fileName, FTPClient ftp )
   {
-    return getFile(sourcePath, destPath, fileName, ftp );
+    if( isDirectoryOnLocal(sourcePath) && isDirectoryOnLocal(destPath) && checkFile(fileName) && checkFTPConnection() )
+    {
+      return getFile(sourcePath, destPath, fileName, ftp );
+    }
+    System.out.println("\nSomething went wrong in getting the Single File! Try again.");
+    return false;
   }
 
   public boolean multipleFiles( String sourcePath, String destPath, String[] files, FTPClient ftp )
   {
-    return getMultipleFiles( sourcePath, destPath, files, ftp );
+    if( isDirectoryOnLocal(sourcePath) && isDirectoryOnLocal(destPath) && checkFile(files[0]) && checkFTPConnection() )
+    {
+      return getMultipleFiles(sourcePath, destPath, files, ftp);
+    }
+    System.out.println("\nSomething went wrong in getting the Multiple Files! Try again.");
+    return false;
   }
 
   /**
@@ -75,9 +85,23 @@ public class getFile
    * @param Path          A valid path to a directory
    * @return  Boolean     Value True is success
    */
-  public boolean isDirectoryOnLocal( String Path ){
-      File dir = new File(Path);
-      return dir.isDirectory();
+  public boolean isDirectoryOnLocal( String Path )
+  {
+    if( Path.isEmpty() )
+    {
+      System.out.println("File Path is empty");
+      return false;
+    }
+
+    File dir = new File(Path);
+
+    if( dir.isDirectory() )
+    {
+      System.out.println("\n" + Path + "is directory");
+      return true;
+    }
+    System.out.println("\n" + Path + "is not a directory");
+    return false;
   }
 
   /**
@@ -118,19 +142,20 @@ public class getFile
     String downloadPath = new String( destPath+"/"+fileName);
     File downloadFile1 = new File(downloadPath);
     try{
-        OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(downloadFile1));
-        boolean success = client.retrieveFile(remoteFile1, outputStream1);
-        outputStream1.close();
-        if (success) {
-          System.out.println("File has been downloaded successfully.");
-          return true;
-        }
+      OutputStream outputStream1 = new BufferedOutputStream(new FileOutputStream(downloadFile1));
+      System.out.println("\nRetrieving File");
+      boolean success = client.retrieveFile(remoteFile1, outputStream1);
+      outputStream1.close();
+      if (success) {
+        System.out.println("File has been downloaded successfully.");
+        return true;
+      }
     }
     catch(IOException ex) {
       System.out.println("Error: " + ex.getMessage());
       System.out.println();
     }
-  return false;
+    return false;
   }
 
   /**
@@ -148,5 +173,30 @@ public class getFile
           success = getFile(sourcePath, destPath, files[i], ftp);
       }
       return success;
+  }
+
+  public boolean checkFile(String fileName)
+  {
+    if( fileName.isEmpty() )
+    {
+      System.out.println("File name is empty");
+      return false;
+    }
+
+    File fil = new File(fileName);
+    if( fil.isFile() )
+    {
+      System.out.println("\n" + fileName + "is a File");
+      return true;
+    }
+    System.out.println("\n" + fileName  + "is not a File");
+    return false;
+  }
+
+  public boolean checkFTPConnection()
+  {
+    String user = new String();
+    String pwd = new String();
+    return Login(user,pwd);
   }
 }
