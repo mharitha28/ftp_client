@@ -35,12 +35,7 @@ class FPTClient{
             if (login) {
                 System.out.println("Connection established...");
                 System.out.println("Status: " + ftpClient.getStatus());
-
-                // logout the user, returned true if logout successfully
-                boolean logout = ftpClient.logout();
-                if (logout) {
-                    return true;
-                }
+                return true;
             } else {
                 return false;
             }
@@ -49,9 +44,26 @@ class FPTClient{
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        } 
+        return false;
+    }
+
+    public boolean Logout() {
+        try {
+            boolean logout = ftpClient.logout();
+            if (logout) {
+                System.out.println("Succesfully logged out.");
+                return true;
+            } else {
+                System.out.println("Logout was unsuccessful.");
+            }
+        } catch (SocketException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         } finally {
             try {
-                ftpClient.disconnect();
+                ftpClient.disconnect(); // disconnect on logout
             } catch (IOException e) {
                 e.printStackTrace();
             }
