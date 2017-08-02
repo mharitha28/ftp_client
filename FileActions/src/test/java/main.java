@@ -70,5 +70,24 @@ class FPTClient{
         }
         return false;
     }
+
+    public boolean Rename(String oldName, String newName){
+        try {
+            boolean rename = ftpClient.rename(source,dest);
+            if(rename) {
+                System.out.println(oldName + " has been renamed to " + newName);
+                return true;
+            } else {
+                System.out.println("Failed to rename: " + oldName);
+                return false;
+            }
+        } catch (SocketException ex){
+            ex.printStackTrace();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+}
+
 }
 
