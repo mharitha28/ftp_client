@@ -1,4 +1,6 @@
 import java.io.*;
+
+import javafx.application.Application;
 import org.apache.commons.net.ftp.FTPClient;
 import java.io.IOException;
 import java.net.SocketException;
@@ -72,7 +74,7 @@ class FPTClient{
 
     public boolean Rename(String oldName, String newName){
         try {
-            boolean rename = ftpClient.rename(source,dest);
+            boolean rename = ftpClient.rename(oldName,newName);
             if(rename) {
                 System.out.println(oldName + " has been renamed to " + newName);
                 return true;
@@ -85,8 +87,24 @@ class FPTClient{
         } catch (IOException ex) {
             ex.printStackTrace();
         }
+        return false;
+    }
+
+    public boolean DeleteFile(String fileName) {
+        try {
+            boolean deleted = ftpClient.deleteFile(fileName);
+            if (deleted) {
+                System.out.println("The file was deleted successfully.");
+                return true;
+            } else {
+                System.out.println("Could not delete the file.");
+                return false;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 }
 
-}
 
