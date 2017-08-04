@@ -21,7 +21,6 @@ class FileActions {
         }
     }
     //System.exit(1);
-
 }
 class FPTClient{
     private FTPClient ftpClient;
@@ -30,7 +29,7 @@ class FPTClient{
     }
     public boolean Login(String username, String password) {
         try {
-            ftpClient.connect("127.0.0.1"); //LOCAL HOST
+            ftpClient.connect("ftp.swfwmd.state.fl.us",21);
             boolean login = ftpClient.login(username, password);
             if (login) {
                 System.out.println("Connection established...");
