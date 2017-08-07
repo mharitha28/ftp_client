@@ -1,4 +1,4 @@
-package group7.ftp;
+package ftp;
 
 import org.apache.commons.net.ftp.FTPClient;
 import java.io.*;
@@ -92,6 +92,11 @@ public class getFile
       System.out.println("File Path is empty");
       return false;
     }
+    if( Path == null )
+    {
+      System.out.println("File Path is null");
+      return false;
+    }
 
     File dir = new File(Path);
 
@@ -180,6 +185,11 @@ public class getFile
     if( fileName.isEmpty() )
     {
       System.out.println("File name is empty");
+      return false;
+    }
+    if( fileName == null )
+    {
+      System.out.println("File name is null and invalid.");
       return false;
     }
 

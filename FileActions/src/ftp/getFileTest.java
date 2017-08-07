@@ -1,4 +1,4 @@
-package group7.ftp;
+package ftp;
 
 import org.apache.commons.net.ftp.FTPClient;
 import org.junit.Assert;
@@ -70,9 +70,8 @@ public class getFileTest
   public void listFilesOnCurrDirectory()
   {
     getFile one = new getFile();
-    Assert.assertFalse( one.listFilesOnCurrentDirectory() );
+    Assert.assertTrue( one.listFilesOnCurrentDirectory() );
   }
-
 
   @Test
   public void invalidIsDirectoryTest()

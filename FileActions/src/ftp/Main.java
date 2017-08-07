@@ -1,6 +1,4 @@
-package group7.ftp;
-
-import org.apache.commons.net.ftp.FTPClient;
+package ftp;
 
 public class Main {
   String defaultUser = new String();
