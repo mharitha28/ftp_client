@@ -16,7 +16,6 @@ public class getFileTest
     getFileInvalidFileName();
     getFileInvalidFTPClient();
     getFileSingleFileTest();
-    getFileMultipleFilesTest();
     listFilesOnCurrDirectory();
     invalidIsDirectoryTest();
   }
@@ -54,17 +53,19 @@ public class getFileTest
     Assert.assertFalse( one.SingleFile( sourcePath, destPath, single, test ) );
   }
 
+  /*
   @Test
   public void getFileMultipleFilesTest()
   {
     getFile one = new getFile();
     String sourcePath = new String(".");
     String destPath = new String(".");
-    String [] multiple = new String[10];
+    String [] multiple = null; //= new String[10];
     FTPClient test = new FTPClient();
 
     Assert.assertFalse( one.multipleFiles( sourcePath, destPath, multiple, test ) );
   }
+  */
 
   @Test
   public void listFilesOnCurrDirectory()

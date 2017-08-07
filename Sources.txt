@@ -1,0 +1,7 @@
+
+Timeout after idle time
+https://commons.apache.org/proper/commons-net/apidocs/org/apache/commons/net/ftp/FTPClient.html
+https://stackoverflow.com/questions/10979911/setting-connect-timeout-for-ftpclient
+https://stackoverflow.com/questions/15880271/issues-with-apache-commons-ftp-client-timeout
+
+https://www.google.com/search?q=apache+commons+ftp+timeout&oq=apache+common+timeout&aqs=chrome.3.69i57j0l5.9923j0j7&sourceid=chrome&ie=UTF-8

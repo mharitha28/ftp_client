@@ -70,6 +70,9 @@ public class getFile
 
   public boolean multipleFiles( String sourcePath, String destPath, String[] files, FTPClient ftp )
   {
+    boolean sourceCheck = isDirectoryOnLocal(sourcePath);
+    boolean destCheck = isDirectoryOnLocal(destPath);
+
     if( isDirectoryOnLocal(sourcePath) && isDirectoryOnLocal(destPath) && checkFile(files[0]) && checkFTPConnection() )
     {
       return getMultipleFiles(sourcePath, destPath, files, ftp);
