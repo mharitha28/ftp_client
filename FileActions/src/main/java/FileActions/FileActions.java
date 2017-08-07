@@ -1,20 +1,36 @@
+package FileActions;
 import java.io.*;
 
 import javafx.application.Application;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.StackPane;
+import javafx.stage.Stage;
 import org.apache.commons.net.ftp.FTPClient;
 import java.io.IOException;
 import java.net.SocketException;
+import java.net.URL;
 import java.util.Scanner;
 
-class FileActions {
+
+
+public class FileActions extends Application{
     private static Scanner scan;
+    Button button;
+
     public static void main(String[] args) {
         scan = new Scanner(System.in);
+        FPTClient object = new FPTClient();
+        launch(args);
+
         System.out.println("Enter user name: ");
         String username = scan.nextLine();
         System.out.println("Enter password: ");
         String password = scan.nextLine();
-        FPTClient object = new FPTClient();
+
         boolean result = object.Login(username, password);
         if(result){
             System.out.println("Connection exits succesfully.");
@@ -22,13 +38,32 @@ class FileActions {
             System.out.println("Connection fails.");
         }
     }
+
+
+    @Override
+    public void start(Stage primaryStage) throws Exception {
+
+        FXMLLoader loader1 = new FXMLLoader();
+        loader1.setLocation(getClass().getResource("/fxml/ftpclient.fxml"));
+        Parent root = (Parent) loader1.load();
+
+        //Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("sample.fxml"));
+        //Users/MyMac/Desktop/CS410Agile/ftp_client/FileActions/src/main/resources/sample.fxml
+
+        primaryStage.setTitle("Hello World");
+        primaryStage.setScene(new Scene(root, 600, 450));
+        primaryStage.show();
+    }
     //System.exit(1);
 }
+
 class FPTClient{
     private FTPClient ftpClient;
+
     FPTClient(){
         ftpClient = new FTPClient();
     }
+
     public boolean Login(String username, String password) {
         try {
             ftpClient.connect("ftp.swfwmd.state.fl.us",21);
@@ -45,7 +80,7 @@ class FPTClient{
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
-        } 
+        }
         return false;
     }
 
