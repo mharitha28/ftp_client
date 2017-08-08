@@ -151,6 +151,32 @@ class FPTClient{
         }
         return false;
     }
+
+    public boolean ChangePermissions(String fileName, String permissions) {
+        /*
+            Changes the permissions of the specified file. Expects a string
+            of permission levels for the owner, the group and the world, e.g. '755'
+            or another set of digits that work with the chmod command.
+
+            https://www.linux.org/threads/file-permissions-chmod.4124/
+
+            Requires the user to be in the directory where the file is located, or to provide relative path 
+            to the file as filename.
+         */
+        try {
+            boolean permissions_changed = ftpClient.sendSiteCommand("chmod " + permissions + " " + fileName);
+            if (permissions_changed) {
+                System.out.println("The file permissions were changed successfully to: " + permissions);
+                return true;
+            } else {
+                System.out.println("Could not change permissions on the file.");
+                return false;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
 }
 
 
