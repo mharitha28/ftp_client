@@ -2,11 +2,16 @@ package FileActions;
 import java.io.*;
 
 import javafx.application.Application;
+import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
+import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.commons.net.ftp.FTPClient;
@@ -19,11 +24,16 @@ import java.util.Scanner;
 
 public class FileActions extends Application{
     private static Scanner scan;
-    Button button;
+    private static FPTClient fptClient;
+    @FXML
+    public TextField addressText, usernameText;
+
+    @FXML
+    public PasswordField passText;
 
     public static void main(String[] args) {
         scan = new Scanner(System.in);
-        FPTClient object = new FPTClient();
+        fptClient = new FPTClient();
         launch(args);
 
         System.out.println("Enter user name: ");
@@ -31,7 +41,7 @@ public class FileActions extends Application{
         System.out.println("Enter password: ");
         String password = scan.nextLine();
 
-        boolean result = object.Login(username, password);
+        boolean result = fptClient.Login(username, password);
         if(result){
             System.out.println("Connection exits succesfully.");
         } else{
@@ -42,13 +52,12 @@ public class FileActions extends Application{
 
     @Override
     public void start(Stage primaryStage) throws Exception {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource("/fxml/ftpclient.fxml"));
+        Parent root = (Parent) loader.load();
 
-        FXMLLoader loader1 = new FXMLLoader();
-        loader1.setLocation(getClass().getResource("/fxml/ftpclient.fxml"));
-        Parent root = (Parent) loader1.load();
-
-        //Parent root = FXMLLoader.load(getClass().getClassLoader().getResource("sample.fxml"));
-        //Users/MyMac/Desktop/CS410Agile/ftp_client/FileActions/src/main/resources/sample.fxml
+        Controller controller = loader.<Controller>getController();
+        controller.setFtpClient(fptClient);
 
         primaryStage.setTitle("Hello World");
         primaryStage.setScene(new Scene(root, 600, 450));
@@ -60,7 +69,7 @@ public class FileActions extends Application{
 class FPTClient{
     private FTPClient ftpClient;
 
-    FPTClient(){
+    public FPTClient(){
         ftpClient = new FTPClient();
     }
 
