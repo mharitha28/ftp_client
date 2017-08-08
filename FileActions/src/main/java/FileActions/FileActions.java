@@ -165,9 +165,9 @@ class FPTClient{
         return false;
     }
 
-    public boolean DeleteDirectory(String directory) {
+    public boolean DeleteDirectory(String dirPath) {
         try {
-            boolean deleted = ftpClient.removeDirectory(directory);
+            boolean deleted = ftpClient.removeDirectory(dirPath);
             if(deleted) {
                 System.out.println("The directory was deleted successfully!");
                 return true;
