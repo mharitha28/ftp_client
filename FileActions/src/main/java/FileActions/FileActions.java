@@ -59,9 +59,24 @@ public class FileActions extends Application{
         Controller controller = loader.<Controller>getController();
         controller.setFtpClient(fptClient);
 
-        primaryStage.setTitle("Hello World");
+        primaryStage.setTitle("FTP Client");
         primaryStage.setScene(new Scene(root, 600, 450));
         primaryStage.show();
+        Button button = new Button();
+        Button button2 = new Button();
+        Button button3 = new Button();
+        button.setText("Rename File");
+        button2.setText("Delete File");
+        button3.setText("Logout File");
+        StackPane layout = new StackPane();
+        layout.getChildren().add(button);
+        layout.getChildren().add(button2);
+        layout.getChildren().add(button3);
+
+        Scene scene = new Scene(layout,500,500);
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
     }
     //System.exit(1);
 }
@@ -149,6 +164,23 @@ class FPTClient{
         }
         return false;
     }
+
+    public boolean DeleteDirectory(String directory) {
+        try {
+            boolean deleted = ftpClient.removeDirectory(directory);
+            if(deleted) {
+                System.out.println("The directory was deleted successfully!");
+                return true;
+            } else {
+                System.out.println("Could not delete the directory!");
+                return false;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
 }
 
 
