@@ -62,20 +62,20 @@ public class FileActions extends Application{
         primaryStage.setTitle("FTP Client");
         primaryStage.setScene(new Scene(root, 600, 450));
         primaryStage.show();
-        Button button = new Button();
-        Button button2 = new Button();
-        Button button3 = new Button();
-        button.setText("Rename File");
-        button2.setText("Delete File");
-        button3.setText("Logout File");
-        StackPane layout = new StackPane();
-        layout.getChildren().add(button);
-        layout.getChildren().add(button2);
-        layout.getChildren().add(button3);
-
-        Scene scene = new Scene(layout,500,500);
-        primaryStage.setScene(scene);
-        primaryStage.show();
+//        Button button = new Button();
+//        Button button2 = new Button();
+//        Button button3 = new Button();
+//        button.setText("Rename File");
+//        button2.setText("Delete File");
+//        button3.setText("Logout File");
+//        StackPane layout = new StackPane();
+//        layout.getChildren().add(button);
+//        layout.getChildren().add(button2);
+//        layout.getChildren().add(button3);
+//
+//        Scene scene = new Scene(layout,500,500);
+//        primaryStage.setScene(scene);
+//        primaryStage.show();
 
     }
     //System.exit(1);
