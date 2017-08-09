@@ -1,6 +1,8 @@
 package ftp;
 
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPReply;
+
 import java.io.*;
 import java.net.SocketException;
 
@@ -9,55 +11,66 @@ import java.net.SocketException;
  */
 public class getFile
 {
-  private boolean Login(String username, String password)
-  {
-    FTPClient ftp = new FTPClient();
-    try
-    {
-      ftp.connect("ftp.swfwmd.state.fl.us",21);
-      boolean login = ftp.login(username, password);
-      if (login)
-      {
-        System.out.println("Connection established...");
-        System.out.println("Status: " + ftp.getStatus());
-
-        // logout the user, returned true if logout successfully
-        boolean logout = ftp.logout();
-        if (logout)
-        {
-          return true;
-        }
-      }
-      else
-      {
-        return false;
-      }
-    }
-    catch (SocketException e)
-    {
-      e.printStackTrace();
-    }
-    catch (IOException e)
-    {
-      e.printStackTrace();
-    }
-    finally
-    {
-      try
-      {
-        ftp.disconnect();
-      }
-      catch (IOException e)
-      {
-        e.printStackTrace();
-      }
-    }
-    return false;
-  }
+  int TWELVEHUNDREDMILLISECONDS= 1200*1000;
 
   public getFile()
   { }
 
+  private void error( String message )
+  {
+    System.err.println("**" + message );
+    System.exit(1);
+  }
+
+  /**
+   * Login function from henry's branch; for testing purposes only
+   *
+   * @param username String username
+   * @param password String password
+   * @return Boolean true/false success value
+   */
+  public boolean Login(String username, String password)
+  {
+    int reply = 0;
+    FTPClient ftp = new FTPClient();
+    try {
+      ftp.connect("ftp.swfwmd.state.fl.us",21);
+
+      //Check that the connection worked
+      reply = ftp.getReplyCode();
+      if( FTPReply.isPositiveCompletion(reply) == false )
+      {
+        ftp.disconnect();
+        error( "FTP server refused connection");
+      }
+
+      ftp.setDefaultTimeout(TWELVEHUNDREDMILLISECONDS);
+      //Check that the login worked
+      boolean login = ftp.login(username, password);
+      if (login) {
+        System.out.println("Connection established...");
+        System.out.println("Status: " + ftp.getStatus());
+        return true;
+      } else {
+        return false;
+      }
+    } catch (SocketException e) {
+      error( "Error: " + e.getCause() );
+    } catch (IOException e) {
+      error( "Error: " + e.getCause() );
+    }
+    return false;
+  }
+
+  /**
+   * Single File Get
+   *
+   * @param sourcePath
+   * @param destPath
+   * @param fileName
+   * @param ftp
+   * @return
+   */
   public boolean SingleFile( String sourcePath, String destPath, String fileName, FTPClient ftp )
   {
     if( isDirectoryOnLocal(sourcePath) && isDirectoryOnLocal(destPath) && checkFile(fileName) && checkFTPConnection() )
@@ -68,6 +81,15 @@ public class getFile
     return false;
   }
 
+  /**
+   * Wrapper method for getMultiple files for
+   *
+   * @param sourcePath
+   * @param destPath
+   * @param files
+   * @param ftp
+   * @return
+   */
   public boolean multipleFiles( String sourcePath, String destPath, String[] files, FTPClient ftp )
   {
     boolean sourceCheck = isDirectoryOnLocal(sourcePath);
@@ -105,7 +127,7 @@ public class getFile
 
     if( dir.isDirectory() )
     {
-      System.out.println("\n" + Path + "is directory");
+     // System.out.println("\n" + Path + "is directory");
       return true;
     }
     System.out.println("\n" + Path + "is not a directory");
@@ -128,6 +150,11 @@ public class getFile
           System.out.println( filesList[i].getName() );
       }
       return true;
+  }
+
+  public boolean timeOutCheck()
+  {
+    return true;
   }
 
   /**
@@ -183,6 +210,13 @@ public class getFile
       return success;
   }
 
+  /**
+   * Method to double check whether the file is a file; This was done because a null value ("") is a considered valid
+   * when checking for whether it is a file
+   *
+   * @param fileName Value being checked
+   * @return Boolean true/false depending of whether the file is a file
+   */
   public boolean checkFile(String fileName)
   {
     if( fileName.isEmpty() )
@@ -206,6 +240,11 @@ public class getFile
     return false;
   }
 
+  /**
+   * Simple boolean to check whether we are logged in or not
+   *
+   * @return true/false dependent on return value of the Login function
+   */
   public boolean checkFTPConnection()
   {
     String user = new String();
