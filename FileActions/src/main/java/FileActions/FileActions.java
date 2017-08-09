@@ -36,6 +36,7 @@ public class FileActions extends Application{
         fptClient = new FPTClient();
         launch(args);
 
+        /*
         System.out.println("Enter user name: ");
         String username = scan.nextLine();
         System.out.println("Enter password: ");
@@ -47,6 +48,7 @@ public class FileActions extends Application{
         } else{
             System.out.println("Connection fails.");
         }
+        */
     }
 
 
