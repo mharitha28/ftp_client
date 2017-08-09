@@ -186,6 +186,38 @@ class FPTClient{
         return false;
     }
 
+      public boolean CreateDirectory(String directoryName) {
+          String directoryName = directoryName;
+          boolean success =ftpClient.makeDirectory(directoryName);
+              if(success) {
+                  System.out.println("Directory " + directoryName +" successfully created");
+                 return true;
+          } else {
+                  System.out.println("Failed to create directory");
+                  return false;
+              }
+      }
+  
+      public void ListDirectoryAndFiles() {
+          // lists files and directories in the current working directory
+          FTPFile[] files = ftpClient.listFiles();
+ 
+         // print details for every file and directory
+         DateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd");
+         String nameTitle = "NAME";
+         String sizeTitle = "SIZE";
+         String dateTitle = "DATE";
+         System.out.printf("%35s" + "%35s"  + "%35s" + "\n", nameTitle, sizeTitle, dateTitle );
+         for (FTPFile file : files) {
+             String name = file.getName();
+             if (file.isDirectory()) {
+                 name = "[" + name.toUpperCase() + "]";
+             }
+             long size = file.getSize();
+             String date = dateFormater.format(file.getTimestamp().getTime());
+             System.out.printf("%35s" + "%35d" + "%35s" + "\n", name, size, date);
+         }
+
     /**
      * Created by haritha on 7/16/17.
      * Uploads single/multiple file(s) from local to server.
@@ -224,7 +256,6 @@ class FPTClient{
         }
         return ftpClient.getReplyCode();
     }
-
 
     /**
      * Created by haritha on 8/4/17.
