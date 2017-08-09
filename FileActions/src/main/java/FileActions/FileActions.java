@@ -14,10 +14,13 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 
@@ -66,10 +69,15 @@ public class FileActions extends Application{
         primaryStage.show();
     }
     //System.exit(1);
+
+
 }
 
 class FPTClient{
     private FTPClient ftpClient;
+    int replyCode = 0;
+    BufferedInputStream localFileInputStream = null;
+    String dirExistsReplyCode = null;
 
     public FPTClient(){
         ftpClient = new FTPClient();
@@ -177,6 +185,119 @@ class FPTClient{
         }
         return false;
     }
+
+    /**
+     * Created by haritha on 7/16/17.
+     * Uploads single/multiple file(s) from local to server.
+     * @param  listLocalFiles, strRemoteFile, countOfFiles
+     * @return replyCode - the return code from server ( 226 - Closing data connection. Requested file action successful)
+     */
+    public int UploadFilesToFTPServer(String strRemoteFile, List<File> listLocalFiles) {
+        try{
+            ftpClient.enterLocalPassiveMode();
+            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+            ftpClient.setSoTimeout(100000);
+
+            if(strRemoteFile.endsWith("/"))
+            {
+                strRemoteFile = strRemoteFile;
+            }else
+                strRemoteFile = strRemoteFile + "/";
+
+            for (File listLocalFile : listLocalFiles){
+
+                String remoteFileExistsReplyCode = ftpClient.getStatus(strRemoteFile + listLocalFile.getName());
+                if (remoteFileExistsReplyCode.contains("No such file or directory")){
+                    localFileInputStream = new BufferedInputStream(new FileInputStream(listLocalFile));
+
+                    boolean storeFile = ftpClient.storeFile(strRemoteFile + listLocalFile.getName() , localFileInputStream);
+                    if (storeFile) {
+                        System.out.println("Successfully uploaded the file " + strRemoteFile + listLocalFile.getName() + " to server");
+                    }
+
+                } else
+                    System.out.println("File " + strRemoteFile + " already exists.");
+            }
+            localFileInputStream.close();
+        }catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return ftpClient.getReplyCode();
+    }
+
+
+    /**
+     * Created by haritha on 8/4/17.
+     * Copies the directories and sub directories recursively from local to server.
+     * @param localDirPath, strRemoteDirPath
+     * @return replyCode -  the return code from server ( 226 - Closing data connection. Requested file action successful)
+     */
+
+    public int CopyDirectoryToFTPServer(File localDirPath, String strRemoteDirPath) {
+        try{
+            ftpClient.enterLocalPassiveMode();
+            ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
+            ftpClient.setSoTimeout(50000);
+
+            if(localDirPath.exists()) {
+                File[] localDirFiles = localDirPath.listFiles();
+                if(localDirFiles.length > 0) {
+                    dirExistsReplyCode = ftpClient.getStatus(strRemoteDirPath);
+                    if (!dirExistsReplyCode.contains("No such file or directory")) {
+                        String strLocalDirName = localDirPath.getName() + "/";
+
+                        if (strRemoteDirPath.endsWith("/")) {
+                            strRemoteDirPath = strRemoteDirPath + strLocalDirName;
+                        } else
+                            strRemoteDirPath = strRemoteDirPath + "/" + strLocalDirName;
+
+                        dirExistsReplyCode = ftpClient.getStatus(strRemoteDirPath);
+                        if (dirExistsReplyCode.contains("No such file or directory")) {
+                            ftpClient.makeDirectory(strRemoteDirPath);
+
+                            for (File localFile : localDirFiles) {
+                                if (localFile.isDirectory()) {
+                                    listSubDirAndDirectories(ftpClient, strRemoteDirPath, localFile);
+                                } else {
+                                    localFileInputStream = new BufferedInputStream(new FileInputStream(localFile));
+                                    boolean storeFile = ftpClient.storeFile(strRemoteDirPath + localFile.getName(), localFileInputStream);
+                                    if (storeFile) {
+                                        System.out.println("Successfully uploaded the file " + strRemoteDirPath + localFile.getName() + " to server");
+                                    }
+                                }
+                            }
+                        } else
+                            System.out.println("The directory " + localDirPath.getName() + " at server already exists.");
+                    } else
+                        System.out.println("The directory " + strRemoteDirPath + " at server doesn't exist");
+                }else
+                    System.out.println("There are no files in the directory");
+            }else
+                System.out.println("The local directory " + localDirPath + " doesn't exist");
+        }catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return ftpClient.getReplyCode();
+    }
+
+    public void listSubDirAndDirectories(FTPClient ftpClient, String remoteDirPath, File localFile) throws IOException{
+        remoteDirPath = remoteDirPath + localFile.getName() + "/";
+        ftpClient.makeDirectory(remoteDirPath);
+        File[] localFileSubDir = localFile.listFiles();
+        for (File file:localFileSubDir) {
+            if(file.isDirectory())
+                listSubDirAndDirectories(ftpClient, remoteDirPath, file);
+            else {
+                localFileInputStream = new BufferedInputStream(new FileInputStream(file));
+
+                boolean storeFile = ftpClient.storeFile(remoteDirPath + file.getName(), localFileInputStream);
+                if (storeFile) {
+                    System.out.println("Successfully uploaded the file " + remoteDirPath + file.getName() + " to server");
+                }
+            }
+        }
+    }
+
 }
 
 
