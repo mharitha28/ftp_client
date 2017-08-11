@@ -160,6 +160,23 @@ class FPTClient{
         return false;
     }
 
+    public boolean DeleteDirectory(String dirPath) {
+        try {
+            boolean deleted = ftpClient.removeDirectory(dirPath);
+            if (deleted) {
+                System.out.println("The directory was deleted successfully!");
+                return true;
+            } else {
+                System.out.println("Could not delete the directory!");
+                return false;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+
     public boolean ChangePermissions(String fileName, String permissions) {
         /*
             Changes the permissions of the specified file. Expects a string
