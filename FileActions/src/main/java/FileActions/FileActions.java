@@ -16,9 +16,13 @@ import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
+import org.apache.commons.net.ftp.FTPFile;
+
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -83,9 +87,9 @@ class FPTClient{
         ftpClient = new FTPClient();
     }
 
-    public boolean Login(String username, String password) {
+    public boolean Login(String address, String username, String password) {
         try {
-            ftpClient.connect("ftp.swfwmd.state.fl.us",21);
+            ftpClient.connect(address,21);
             boolean login = ftpClient.login(username, password);
             if (login) {
                 System.out.println("Connection established...");
@@ -203,8 +207,8 @@ class FPTClient{
         return false;
     }
 
-    public boolean CreateDirectory(String directoryName) {
-        String directoryName = directoryName;
+    public boolean CreateDirectory(String directoryName) throws Exception{
+
         boolean success =ftpClient.makeDirectory(directoryName);
             if(success) {
                  System.out.println("Directory " + directoryName +" successfully created");
@@ -215,7 +219,7 @@ class FPTClient{
           }
     }
   
-    public void ListDirectoryAndFiles() {
+    public void ListDirectoryAndFiles() throws Exception{
         // lists files and directories in the current working directory
         FTPFile[] files = ftpClient.listFiles();
  
@@ -347,6 +351,40 @@ class FPTClient{
         }
     }
 
+    /**
+     * Call this method to get the list of the files on the current
+     * directory
+     *
+     * @return  boolean value of True/False; True being success value
+     */
+    public FTPFile[] listFilesOnCurrentDirectory(String path){
+        /*
+        File currDir = new File(".");
+        if(!isDirectoryOnLocal( currDir.toString())) return false;
+        File[] filesList = currDir.listFiles();
+        for(int i = 0; i < filesList.length; i++ ){
+            System.out.println( filesList[i].getName() );
+        }
+        return true;
+        */
+
+        FTPFile[] files;
+        try {
+            files = ftpClient.listFiles(path);
+
+            for (FTPFile file : files) {
+                String details = file.getName();
+                System.out.println(details);
+            }
+
+            return files;
+        }catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        System.out.println("No files");
+        return null;
+    }
 }
+
 
 
