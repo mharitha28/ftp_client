@@ -9,7 +9,7 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="FileActions.Controller">
     <children>
-        <TextField fx:id="addressText" layoutX="217.0" layoutY="96.0" text="ftp.swfwmd.state.fl.us" />
+        <TextField fx:id="addressText" layoutX="217.0" layoutY="96.0" />
         <TextField fx:id="usernameText" layoutX="217.0" layoutY="134.0" />
         <CheckBox fx:id="isChecked" layoutX="291.0" layoutY="215.0" mnemonicParsing="false" text="Remember" />
         <Button fx:id="connectButton" layoutX="266.0" layoutY="258.0" mnemonicParsing="false" onAction="#handleButtonAction" text="Connect" />
