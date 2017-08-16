@@ -17,6 +17,7 @@ import javafx.stage.Stage;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
+import sun.rmi.runtime.Log;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -80,8 +81,10 @@ public class FileActions extends Application{
 class FPTClient{
     private FTPClient ftpClient;
     int replyCode = 0;
-    BufferedInputStream localFileInputStream = null;
+    FileInputStream localFileInputStream = null;
     String dirExistsReplyCode = null;
+    List<File> fileFound = new ArrayList<File>();
+    String strRemoteDirPath = null;
 
     public FPTClient(){
         ftpClient = new FTPClient();
@@ -94,6 +97,7 @@ class FPTClient{
             if (login) {
                 System.out.println("Connection established...");
                 System.out.println("Status: " + ftpClient.getStatus());
+
                 return true;
             } else {
                 return false;
@@ -251,28 +255,41 @@ class FPTClient{
             ftpClient.enterLocalPassiveMode();
             ftpClient.setFileType(FTP.BINARY_FILE_TYPE);
             ftpClient.setSoTimeout(100000);
+            ftpClient.setControlKeepAliveTimeout(100000);
+            //localFileInputStream.close();
 
             if(strRemoteFile.endsWith("/"))
             {
                 strRemoteFile = strRemoteFile;
             }else
                 strRemoteFile = strRemoteFile + "/";
+            if (ftpClient.changeWorkingDirectory(strRemoteFile)) {
+                for (File listLocalFile : listLocalFiles) {
+                    String remoteFileExistsReplyCode = ftpClient.getStatus(strRemoteFile + listLocalFile.getName());
 
-            for (File listLocalFile : listLocalFiles){
+                    if (!remoteFileExistsReplyCode.contains(listLocalFile.getName()) || remoteFileExistsReplyCode.contains("No such file or directory")) {
+                        localFileInputStream = new FileInputStream(listLocalFile);
 
-                String remoteFileExistsReplyCode = ftpClient.getStatus(strRemoteFile + listLocalFile.getName());
-                if (remoteFileExistsReplyCode.contains("No such file or directory")){
-                    localFileInputStream = new BufferedInputStream(new FileInputStream(listLocalFile));
+                        OutputStream outputStream = ftpClient.storeFileStream(strRemoteFile + listLocalFile.getName());
+                        byte[] bytesIn = new byte[4096];
+                        int read = 0;
 
-                    boolean storeFile = ftpClient.storeFile(strRemoteFile + listLocalFile.getName() , localFileInputStream);
-                    if (storeFile) {
-                        System.out.println("Successfully uploaded the file " + strRemoteFile + listLocalFile.getName() + " to server");
-                    }
+                        while ((read = localFileInputStream.read(bytesIn)) != -1) {
+                            outputStream.write(bytesIn, 0, read);
+                        }
+                        localFileInputStream.close();
+                        outputStream.close();
 
-                } else
-                    System.out.println("File " + strRemoteFile + " already exists.");
-            }
-            localFileInputStream.close();
+                        boolean storeFileCompleted = ftpClient.completePendingCommand();
+                        if (storeFileCompleted) {
+                            System.out.println("Successfully uploaded the file " + strRemoteFile + listLocalFile.getName() + " to server");
+                        }
+
+                    } else
+                        System.out.println("File " + strRemoteFile + listLocalFile.getName() + " already exists.");
+                }
+            }else
+                System.out.println("Directory " + strRemoteFile + "doesn't exist");
         }catch (IOException ex) {
             ex.printStackTrace();
         }
@@ -296,7 +313,7 @@ class FPTClient{
                 File[] localDirFiles = localDirPath.listFiles();
                 if(localDirFiles.length > 0) {
                     dirExistsReplyCode = ftpClient.getStatus(strRemoteDirPath);
-                    if (!dirExistsReplyCode.contains("No such file or directory")) {
+                    if (ftpClient.changeWorkingDirectory(strRemoteDirPath)) {
                         String strLocalDirName = localDirPath.getName() + "/";
 
                         if (strRemoteDirPath.endsWith("/")) {
@@ -304,19 +321,31 @@ class FPTClient{
                         } else
                             strRemoteDirPath = strRemoteDirPath + "/" + strLocalDirName;
 
-                        dirExistsReplyCode = ftpClient.getStatus(strRemoteDirPath);
-                        if (dirExistsReplyCode.contains("No such file or directory")) {
+
+                        if (!ftpClient.changeWorkingDirectory(strRemoteDirPath)) {
                             ftpClient.makeDirectory(strRemoteDirPath);
 
                             for (File localFile : localDirFiles) {
                                 if (localFile.isDirectory()) {
                                     listSubDirAndDirectories(ftpClient, strRemoteDirPath, localFile);
                                 } else {
-                                    localFileInputStream = new BufferedInputStream(new FileInputStream(localFile));
-                                    boolean storeFile = ftpClient.storeFile(strRemoteDirPath + localFile.getName(), localFileInputStream);
-                                    if (storeFile) {
-                                        System.out.println("Successfully uploaded the file " + strRemoteDirPath + localFile.getName() + " to server");
+
+                                    localFileInputStream = new FileInputStream(localFile);
+                                    OutputStream outputStream = ftpClient.storeFileStream(strRemoteDirPath + localFile.getName());
+                                    byte[] bytesIn = new byte[4096];
+                                    int read = 0;
+
+                                    while ((read = localFileInputStream.read(bytesIn)) != -1) {
+                                        outputStream.write(bytesIn, 0, read);
                                     }
+                                    localFileInputStream.close();
+                                    outputStream.close();
+
+                                    boolean storeFileCompleted = ftpClient.completePendingCommand();
+                                    if (storeFileCompleted) {
+                                        System.out.println("Successfully uploaded the file " + strRemoteDirPath + localFile.getName() + " to server");
+                                    }else
+                                        System.out.println(ftpClient.getReplyCode());
                                 }
                             }
                         } else
@@ -341,10 +370,19 @@ class FPTClient{
             if(file.isDirectory())
                 listSubDirAndDirectories(ftpClient, remoteDirPath, file);
             else {
-                localFileInputStream = new BufferedInputStream(new FileInputStream(file));
+                localFileInputStream = new FileInputStream(file);
+                OutputStream outputStream = ftpClient.storeFileStream(remoteDirPath + file.getName());
+                byte[] bytesIn = new byte[4096];
+                int read = 0;
 
-                boolean storeFile = ftpClient.storeFile(remoteDirPath + file.getName(), localFileInputStream);
-                if (storeFile) {
+                while ((read = localFileInputStream.read(bytesIn)) != -1) {
+                    outputStream.write(bytesIn, 0, read);
+                }
+                localFileInputStream.close();
+                outputStream.close();
+
+                boolean storeFileCompleted = ftpClient.completePendingCommand();
+                if (storeFileCompleted) {
                     System.out.println("Successfully uploaded the file " + remoteDirPath + file.getName() + " to server");
                 }
             }
@@ -383,6 +421,96 @@ class FPTClient{
         }
         System.out.println("No files");
         return null;
+    }
+
+    /**
+     * Created by haritha on 8/9/17.
+     * Copies the directories and sub directories recursively from local to server.
+     * @param localDirPath, fileNameToSearch
+     * @return replyCode -  the return code from server ( 226 - Closing data connection. Requested file action successful)
+     */
+    public void searchLocalFile(File localDirPath, String fileNameToSearch) {
+        if (localDirPath.isDirectory()) {
+            List<File> filesFound = searchLocalDirectory(localDirPath, fileNameToSearch);
+
+            System.out.println("Found: ");
+            for(File file: filesFound){
+                System.out.println(file.getName() + " at " + file.getParentFile().getAbsolutePath());
+            }
+        } else
+            System.out.println(localDirPath.getAbsoluteFile() + " is not a directory!");
+    }
+
+    public List<File> searchLocalDirectory(File localDirPath, String fileNameToSearch){
+        if(localDirPath.isDirectory()){
+            if(localDirPath.canRead()){
+                for (File localFile: localDirPath.listFiles()) {
+                    if(localFile.isDirectory()) {
+                        if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                            fileFound.add(localFile);
+                        searchLocalDirectory(localFile, fileNameToSearch);
+                    }
+                    else{
+                        if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                            fileFound.add(localFile);
+                    }
+                }
+            }else
+                System.out.println("Cannot read this directory: " + localDirPath.getAbsolutePath());
+        }else
+            System.out.println("Directory " + localDirPath.getAbsolutePath() + " doesn't exist");
+
+        return fileFound;
+    }
+
+    /**
+     * Created by haritha on 8/9/17
+     * Copies the directories and sub directories recursively from local to server.
+     * @param remoteDirPath, fileNameToSearch
+     * @return replyCode -  the return code from server ( 226 - Closing data connection. Requested file action successful)
+     */
+    public void searchRemoteFile(File remoteDirPath, String fileNameToSearch) throws IOException{
+        if (ftpClient.changeWorkingDirectory(remoteDirPath.getAbsolutePath())) {
+            strRemoteDirPath = remoteDirPath.getAbsolutePath();
+            FTPFile[] listRemoteFiles = ftpClient.listFiles(strRemoteDirPath);
+            for (FTPFile localFile: listRemoteFiles) {
+                if(localFile.isDirectory()) {
+                    if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                        System.out.println("Found: " + localFile.getName() + " at " + strRemoteDirPath);
+                    searchRemoteDirectory(localFile, fileNameToSearch);
+                } else{
+                    if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                        System.out.println("Found: " + localFile.getName() + " at " + strRemoteDirPath);
+                }
+            }
+        } else {
+            System.out.println(remoteDirPath.getAbsoluteFile() + " is not a directory!");
+        }
+    }
+
+    /**
+     * Created by haritha on 8/9/17
+     * Searches for a file in the directories and sub directories recursively at server.
+     * @param dirPath, fileNameToSearch
+     * @return replyCode -  the return code from server ( 226 - Closing data connection. Requested file action successful)
+     */
+    public void searchRemoteDirectory(FTPFile dirPath, String fileNameToSearch)  throws IOException{
+        if(dirPath.isDirectory()){
+            String strRemoteSubDirPath = strRemoteDirPath + "/" + dirPath.getName();
+            FTPFile[] listRemoteFiles = ftpClient.listFiles(strRemoteSubDirPath);
+                for (FTPFile localFile: listRemoteFiles) {
+                    if(localFile.isDirectory()){
+                        if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                            System.out.println("Found: " + localFile.getName() + " at " + strRemoteSubDirPath);
+                        strRemoteDirPath = strRemoteSubDirPath;
+                        searchRemoteDirectory(localFile, fileNameToSearch);
+                    } else{
+                        if(localFile.getName().toLowerCase().contains(fileNameToSearch))
+                            System.out.println("Found: " + localFile.getName() + " at " + strRemoteSubDirPath);
+                    }
+                }
+        }else
+            System.out.println("Directory " + dirPath.getName() + " doesn't exist");
     }
 }
 
