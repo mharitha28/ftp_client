@@ -74,14 +74,13 @@ public class Controller {
 
 
 
-            Stage stage;
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(getClass().getResource("/fxml/ftpclientMainPage.fxml"));
-            stage = (Stage) connectButton.getScene().getWindow();
+            Stage stage = new Stage();
+            //FXMLLoader loader = new FXMLLoader();
+            //loader.setLocation(getClass().getResource("/fxml/ftpclientMainPage.fxml"));
+            //stage = (Stage) connectButton.getScene().getWindow();
 
 
-            ControllerMainPage controller = loader.<ControllerMainPage>getController();
-
+            //ControllerMainPage controller = loader.<ControllerMainPage>getController();
             TreeItem<String> rootItem = new TreeItem<String> ("FTP Server");
             rootItem.setExpanded(true);
             String path = "";
@@ -107,7 +106,6 @@ public class Controller {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
-
         }
         else{
             Alert alert = new Alert(AlertType.ERROR);
