@@ -22,6 +22,8 @@ import sun.rmi.runtime.Log;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.URL;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -88,9 +90,9 @@ class FPTClient{
         ftpClient = new FTPClient();
     }
 
-    public boolean Login(String username, String password) {
+    public boolean Login(String address, String username, String password) {
         try {
-            ftpClient.connect("ftp.swfwmd.state.fl.us",21);
+            ftpClient.connect(address,21);
             boolean login = ftpClient.login(username, password);
             if (login) {
                 System.out.println("Connection established...");
@@ -166,6 +168,23 @@ class FPTClient{
         return false;
     }
 
+    public boolean DeleteDirectory(String dirPath) {
+        try {
+            boolean deleted = ftpClient.removeDirectory(dirPath);
+            if (deleted) {
+                System.out.println("The directory was deleted successfully!");
+                return true;
+            } else {
+                System.out.println("Could not delete the directory!");
+                return false;
+            }
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
+
+
     public boolean ChangePermissions(String fileName, String permissions) {
         /*
             Changes the permissions of the specified file. Expects a string
@@ -191,6 +210,39 @@ class FPTClient{
         }
         return false;
     }
+
+    public boolean CreateDirectory(String directoryName) throws Exception{
+
+        boolean success =ftpClient.makeDirectory(directoryName);
+            if(success) {
+                 System.out.println("Directory " + directoryName +" successfully created");
+                 return true;
+          } else {
+                 System.out.println("Failed to create directory");
+                 return false;
+          }
+    }
+  
+    public void ListDirectoryAndFiles() throws Exception{
+        // lists files and directories in the current working directory
+        FTPFile[] files = ftpClient.listFiles();
+ 
+        // print details for every file and directory
+        DateFormat dateFormater = new SimpleDateFormat("yyyy-MM-dd");
+        String nameTitle = "NAME";
+        String sizeTitle = "SIZE";
+        String dateTitle = "DATE";
+        System.out.printf("%35s" + "%35s"  + "%35s" + "\n", nameTitle, sizeTitle, dateTitle );
+        for (FTPFile file : files) {
+            String name = file.getName();
+            if (file.isDirectory()) {
+                name = "[" + name.toUpperCase() + "]";
+            }
+            long size = file.getSize();
+            String date = dateFormater.format(file.getTimestamp().getTime());
+            System.out.printf("%35s" + "%35d" + "%35s" + "\n", name, size, date);
+        }
+    }	
 
     /**
      * Created by haritha on 7/16/17.
@@ -243,7 +295,6 @@ class FPTClient{
         }
         return ftpClient.getReplyCode();
     }
-
 
     /**
      * Created by haritha on 8/4/17.
@@ -323,6 +374,7 @@ class FPTClient{
                 OutputStream outputStream = ftpClient.storeFileStream(remoteDirPath + file.getName());
                 byte[] bytesIn = new byte[4096];
                 int read = 0;
+<<<<<<< HEAD
 
                 while ((read = localFileInputStream.read(bytesIn)) != -1) {
                     outputStream.write(bytesIn, 0, read);
@@ -330,6 +382,15 @@ class FPTClient{
                 localFileInputStream.close();
                 outputStream.close();
 
+=======
+
+                while ((read = localFileInputStream.read(bytesIn)) != -1) {
+                    outputStream.write(bytesIn, 0, read);
+                }
+                localFileInputStream.close();
+                outputStream.close();
+
+>>>>>>> origin/master
                 boolean storeFileCompleted = ftpClient.completePendingCommand();
                 if (storeFileCompleted) {
                     System.out.println("Successfully uploaded the file " + remoteDirPath + file.getName() + " to server");
@@ -338,6 +399,42 @@ class FPTClient{
         }
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * Call this method to get the list of the files on the current
+     * directory
+     *
+     * @return  boolean value of True/False; True being success value
+     */
+    public FTPFile[] listFilesOnCurrentDirectory(String path){
+        /*
+        File currDir = new File(".");
+        if(!isDirectoryOnLocal( currDir.toString())) return false;
+        File[] filesList = currDir.listFiles();
+        for(int i = 0; i < filesList.length; i++ ){
+            System.out.println( filesList[i].getName() );
+        }
+        return true;
+        */
+
+        FTPFile[] files;
+        try {
+            files = ftpClient.listFiles(path);
+
+            for (FTPFile file : files) {
+                String details = file.getName();
+                System.out.println(details);
+            }
+
+            return files;
+        }catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        System.out.println("No files");
+        return null;
+    }
+>>>>>>> origin/master
 
     /**
      * Created by haritha on 8/9/17.
@@ -428,7 +525,11 @@ class FPTClient{
         }else
             System.out.println("Directory " + dirPath.getName() + " doesn't exist");
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/master
 }
+
 
 
