@@ -90,7 +90,7 @@ class FPTClient{
 
     public boolean Login(String username, String password) {
         try {
-            ftpClient.connect("localhost",21); //agile //imanagiledude //
+            ftpClient.connect("ftp.swfwmd.state.fl.us",21);
             boolean login = ftpClient.login(username, password);
             if (login) {
                 System.out.println("Connection established...");
