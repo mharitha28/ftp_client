@@ -67,11 +67,11 @@ public class Controller {
         System.out.println(checked);
 
         if(ftpClient.Login(user, pass)) {
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Connection Info");
-            alert.setContentText("Connection has been established");
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Connection Info");
+                alert.setContentText("Connection has been established");
 
-            alert.showAndWait();
+                alert.showAndWait();
         }
         else{
             Alert alert = new Alert(AlertType.ERROR);
