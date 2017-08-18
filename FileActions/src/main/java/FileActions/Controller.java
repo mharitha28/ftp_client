@@ -66,6 +66,14 @@ public class Controller {
         System.out.println(pass);
         System.out.println(checked);
 
+/**<<<<<<< HEAD
+        if(ftpClient.Login(user, pass)) {
+                Alert alert = new Alert(AlertType.INFORMATION);
+                alert.setTitle("Connection Info");
+                alert.setContentText("Connection has been established");
+
+                alert.showAndWait();
+=======**/
         if(ftpClient.Login(address, user, pass)) {
             Alert alert = new Alert(AlertType.INFORMATION);
             alert.setTitle("Connection Info");
@@ -106,6 +114,8 @@ public class Controller {
             Scene scene = new Scene(root);
             stage.setScene(scene);
             stage.show();
+//
+//>>>>>>> origin/master
         }
         else{
             Alert alert = new Alert(AlertType.ERROR);
